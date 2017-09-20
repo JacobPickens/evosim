@@ -1,2 +1,2 @@
-# evosim
-Simple Evolution Simulator
+# Evosim
+Evosim will be a basic single cell evolution simulator that I'll be creating for my computer programming class. I am absolutely fascinated by evolution and machine learning and both ThinMatrix's Equlinox and carykh's youtube videos on evolution and AI have been a huge inspiration. I plan to touch on basic things such as asexual reproduction, the evolution of sight and inteligent movement, the evolution of different eating patterns sub as herbivores and carnivores, specization, and if I'm lucky I'll be able to pull of sexual reproduction along with multicellular organisms.

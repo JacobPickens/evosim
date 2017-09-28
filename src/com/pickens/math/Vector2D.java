@@ -10,4 +10,17 @@ public class Vector2D {
 		this.y = y;
 	}
 	
+	public float length(){
+	    return (float) Math.sqrt(x*x + y*y);
+	}
+
+	public Vector2D normalize(){
+	    if(length() > 0){
+	        x /= length();
+	        y /= length();
+	        return this;
+	    }
+	    return null;
+	}
+	
 }

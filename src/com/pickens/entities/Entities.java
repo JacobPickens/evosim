@@ -22,14 +22,14 @@ public class Entities {
 	}
 	
 	public void render(Graphics g) {
-		for(Entity e:entities) {
-			e.render(g);
+		for(int i = 0; i < entities.size(); i++) {
+			entities.get(i).render(g);
 		}
 	}
 	
 	public void update(Input input) {
-		for(Entity e:entities) {
-			e.update(input);
+		for(int i = 0; i < entities.size(); i++) {
+			entities.get(i).updateCall(input);
 		}
 	}
 	

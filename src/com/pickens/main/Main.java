@@ -9,10 +9,12 @@ import org.newdawn.slick.SlickException;
 import com.pickens.entities.Cell;
 import com.pickens.entities.Entities;
 import com.pickens.entities.Food;
+import com.pickens.entities.FoodManager;
 
 public class Main extends BasicGame {
 
 	Entities entities;
+	FoodManager food;
 	
 	public Main(String title) {
 		super(title);
@@ -20,8 +22,9 @@ public class Main extends BasicGame {
 	
 	public void init(GameContainer gc) throws SlickException {
 		entities = new Entities();
-		entities.add(new Food(128, 128));
-		entities.add(new Cell(0, 0));
+		food = new FoodManager(entities);
+		
+		entities.add(new Cell(0, 0, entities));
 	}
 	
 	public void render(GameContainer gc, Graphics g) throws SlickException {
@@ -29,6 +32,7 @@ public class Main extends BasicGame {
 	}
 
 	public void update(GameContainer gc, int delta) throws SlickException {
+		food.update();
 		entities.update(gc.getInput());
 	}
 

@@ -2,8 +2,9 @@ package com.pickens.anatomy;
 
 public class Nucleus {
 
-	public static final int NUMBER_OF_GENES = 1;
+	public static final int NUMBER_OF_GENES = 2;
 	public static final int SPEED_GENE = 0;
+	public static final int SIGHT_GENE = 1;
 	
 	private float[] dna;
 	

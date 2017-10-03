@@ -23,6 +23,8 @@ public class Cell extends Entity {
 	private Vector2D target;
 	
 	private float health = 100;
+	private float lifetime = 0;
+	
 	private float stomach;
 	
 	public Cell(float x, float y, Entities entities) {
@@ -38,6 +40,7 @@ public class Cell extends Entity {
 		tempDNA[SIGHT_GENE] = 0f;
 		tempDNA[STOMACH_SIZE] = 5f;
 		tempDNA[METABOLIC_RATE] = 1 * 60f;
+		tempDNA[LIFESPAN] = 15 * 60f;
 		nucleus = new Nucleus(tempDNA);
 		target = new Vector2D(200, 200);
 		
@@ -59,6 +62,8 @@ public class Cell extends Entity {
 	int metabolicTicker = 0;
 	@Override
 	public void update(Input input) {
+		lifetime++;
+		
 		// Sight
 		ArrayList<Vector2D> targetsInRange = new ArrayList<Vector2D>();
 		@SuppressWarnings("unchecked")
@@ -129,8 +134,16 @@ public class Cell extends Entity {
 		
 		// Death
 		if(health <= 0) {
-			entities.remove(this);
+			die();
 			return;
+		}
+		
+		if(lifetime > nucleus.getGeneValue(LIFESPAN)) {
+			if(random.nextBoolean()) {
+				die();
+				System.out.println("old age");
+				return;
+			}
 		}
 		
 		// Movement
@@ -138,6 +151,10 @@ public class Cell extends Entity {
 		
 		setX(getX() + nucleus.getGeneValue(SPEED_GENE)*direction.x);
 		setY(getY() + nucleus.getGeneValue(SPEED_GENE)*direction.y);
+	}
+	
+	public void die() {
+		entities.remove(this);
 	}
 
 }

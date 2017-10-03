@@ -1,8 +1,6 @@
 package com.pickens.entities;
 
-import static com.pickens.anatomy.Nucleus.NUMBER_OF_GENES;
-import static com.pickens.anatomy.Nucleus.SIGHT_GENE;
-import static com.pickens.anatomy.Nucleus.SPEED_GENE;
+import static com.pickens.anatomy.Nucleus.*;
 
 import java.util.ArrayList;
 import java.util.Random;
@@ -33,7 +31,7 @@ public class Cell extends Entity {
 		this.entities = entities;
 		
 		float[] tempDNA = new float[NUMBER_OF_GENES];
-		tempDNA[SPEED_GENE] = 2f;
+		tempDNA[SPEED_GENE] = 6f;
 		tempDNA[SIGHT_GENE] = 1000f;
 		nucleus = new Nucleus(tempDNA);
 		target = new Vector2D(200, 200);
@@ -47,11 +45,13 @@ public class Cell extends Entity {
 		g.fillOval(getX(), getY(), getWidth(), getHeight());
 	}
 
+	boolean randomTarget = false;	
 	@Override
 	public void update(Input input) {		
 		// Targeting and Sight
-		if(MathUtil.isNumberWithin(getX(), target.x, 4) && MathUtil.isNumberWithin(getY(), target.y, 4)) {
+		if((MathUtil.isNumberWithin(getX(), target.x, 4) && MathUtil.isNumberWithin(getY(), target.y, 4)) || randomTarget) {
 			target = null;
+			ArrayList<Vector2D> targetsInRange = new ArrayList<Vector2D>();
 			@SuppressWarnings("unchecked")
 			ArrayList<Entity> list = (ArrayList<Entity>) entities.getEntities().clone();
 			list.remove(this);
@@ -59,13 +59,29 @@ public class Cell extends Entity {
 				float distanceFrom = (float) Math.sqrt(Math.pow(e.getX()-getX(), 2) + Math.pow(e.getY()-getY(), 2));
 							
 				if(distanceFrom <= nucleus.getGeneValue(SIGHT_GENE)) {
-					target = new Vector2D(e.getX(), e.getY());
-					System.out.println("Seen");
-					System.out.println(distanceFrom);
+					targetsInRange.add(new Vector2D(e.getX(), e.getY()));
 				}
 			}
+			
+			int closest = 0;
+			for(int i = 0; i < targetsInRange.size(); i++) {
+				Vector2D cur = targetsInRange.get(i);
+				Vector2D clo = targetsInRange.get(closest);
+				float distance = (float) Math.sqrt(Math.pow(cur.x-getX(), 2) + Math.pow(cur.y-getY(), 2));
+				float close = (float) Math.sqrt(Math.pow(clo.x-getX(), 2) + Math.pow(clo.y-getY(), 2));
+				if(distance < close) {
+					closest = i;
+				}
+			}
+			
+			if(FoodManager.getNumberOfFood() > 0) {
+				target = targetsInRange.get(closest);
+				randomTarget = false;
+			}
+			
 			if(target == null) {
 				target = new Vector2D(random.nextInt(640), random.nextInt(480));
+				randomTarget = true;
 			}
 		}
 		

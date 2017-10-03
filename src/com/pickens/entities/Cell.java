@@ -22,6 +22,9 @@ public class Cell extends Entity {
 	
 	private Vector2D target;
 	
+	private float health = 100;
+	private float stomach;
+	
 	public Cell(float x, float y, Entities entities) {
 		super(x, y);
 		setWidth(32);
@@ -31,24 +34,32 @@ public class Cell extends Entity {
 		this.entities = entities;
 		
 		float[] tempDNA = new float[NUMBER_OF_GENES];
-		tempDNA[SPEED_GENE] = 5f;
-		tempDNA[SIGHT_GENE] = 100000f;
+		tempDNA[SPEED_GENE] = 2f;
+		tempDNA[SIGHT_GENE] = 0f;
+		tempDNA[STOMACH_SIZE] = 5f;
+		tempDNA[METABOLIC_RATE] = 1 * 60f;
 		nucleus = new Nucleus(tempDNA);
 		target = new Vector2D(200, 200);
+		
+		stomach = nucleus.getGeneValue(STOMACH_SIZE);
 		
 		random = new Random();
 	}
 
 	@Override
 	public void render(Graphics g) {
+		g.setColor(Color.red);
+		g.fillRect(getX(), getY()-12, (health/100)*getWidth(), 8);
+		
 		g.setColor(Color.blue);
 		g.fillOval(getX(), getY(), getWidth(), getHeight());
 	}
 
 	boolean breakout = false;
-	
+	int metabolicTicker = 0;
 	@Override
 	public void update(Input input) {
+		// Sight
 		ArrayList<Vector2D> targetsInRange = new ArrayList<Vector2D>();
 		@SuppressWarnings("unchecked")
 		ArrayList<Entity> entityList = (ArrayList<Entity>) entities.getEntities().clone();
@@ -65,7 +76,7 @@ public class Cell extends Entity {
 			breakout = true;
 		}
 		
-		// Targeting and Sight
+		// Targeting
 		if((MathUtil.isNumberWithin(getX(), target.x, 4) && MathUtil.isNumberWithin(getY(), target.y, 4)) || breakout) {
 			breakout = false;
 			target = null;
@@ -90,17 +101,36 @@ public class Cell extends Entity {
 			}
 		}
 		
+		// Digestion & Starvation
+		metabolicTicker++;
+		if(metabolicTicker >= nucleus.getGeneValue(METABOLIC_RATE) && stomach > 0) {
+			metabolicTicker = 0;
+			stomach--;
+			System.out.println("minus food");
+		} else if(stomach <= 0 && metabolicTicker >= nucleus.getGeneValue(METABOLIC_RATE)) {
+			metabolicTicker = 0;
+			health -= 10;
+			System.out.println("minus health");
+		}
+		
 		// Collision Testing
 		@SuppressWarnings("unchecked")
 		ArrayList<Entity> list = (ArrayList<Entity>) entities.getEntities().clone();
 		list.remove(this);
 		for(Entity e:list) {
 			if(this.getBounds().intersects(e.getBounds())) {
-				if(e instanceof Food) {
+				if(e instanceof Food && stomach < nucleus.getGeneValue(STOMACH_SIZE)) {
 					entities.remove(e);
+					stomach++;
 					FoodManager.foodEaten();
 				}
 			}
+		}
+		
+		// Death
+		if(health <= 0) {
+			entities.remove(this);
+			return;
 		}
 		
 		// Movement

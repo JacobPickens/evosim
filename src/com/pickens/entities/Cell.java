@@ -31,8 +31,8 @@ public class Cell extends Entity {
 		this.entities = entities;
 		
 		float[] tempDNA = new float[NUMBER_OF_GENES];
-		tempDNA[SPEED_GENE] = 6f;
-		tempDNA[SIGHT_GENE] = 1000f;
+		tempDNA[SPEED_GENE] = 5f;
+		tempDNA[SIGHT_GENE] = 100000f;
 		nucleus = new Nucleus(tempDNA);
 		target = new Vector2D(200, 200);
 		
@@ -45,23 +45,30 @@ public class Cell extends Entity {
 		g.fillOval(getX(), getY(), getWidth(), getHeight());
 	}
 
-	boolean randomTarget = false;	
+	boolean breakout = false;
+	
 	@Override
-	public void update(Input input) {		
-		// Targeting and Sight
-		if((MathUtil.isNumberWithin(getX(), target.x, 4) && MathUtil.isNumberWithin(getY(), target.y, 4)) || randomTarget) {
-			target = null;
-			ArrayList<Vector2D> targetsInRange = new ArrayList<Vector2D>();
-			@SuppressWarnings("unchecked")
-			ArrayList<Entity> list = (ArrayList<Entity>) entities.getEntities().clone();
-			list.remove(this);
-			for(Entity e:list) {
-				float distanceFrom = (float) Math.sqrt(Math.pow(e.getX()-getX(), 2) + Math.pow(e.getY()-getY(), 2));
-							
-				if(distanceFrom <= nucleus.getGeneValue(SIGHT_GENE)) {
-					targetsInRange.add(new Vector2D(e.getX(), e.getY()));
-				}
+	public void update(Input input) {
+		ArrayList<Vector2D> targetsInRange = new ArrayList<Vector2D>();
+		@SuppressWarnings("unchecked")
+		ArrayList<Entity> entityList = (ArrayList<Entity>) entities.getEntities().clone();
+		entityList.remove(this);
+		for(Entity e:entityList) {
+			float distanceFrom = (float) Math.sqrt(Math.pow(e.getX()-getX(), 2) + Math.pow(e.getY()-getY(), 2));
+						
+			if(distanceFrom <= nucleus.getGeneValue(SIGHT_GENE)) {
+				targetsInRange.add(new Vector2D(e.getX(), e.getY()));
 			}
+		}
+		
+		if(targetsInRange.size() > 0) {
+			breakout = true;
+		}
+		
+		// Targeting and Sight
+		if((MathUtil.isNumberWithin(getX(), target.x, 4) && MathUtil.isNumberWithin(getY(), target.y, 4)) || breakout) {
+			breakout = false;
+			target = null;
 			
 			int closest = 0;
 			for(int i = 0; i < targetsInRange.size(); i++) {
@@ -74,14 +81,12 @@ public class Cell extends Entity {
 				}
 			}
 			
-			if(FoodManager.getNumberOfFood() > 0) {
+			if(FoodManager.getNumberOfFood() > 0 && targetsInRange.size() > 0) {
 				target = targetsInRange.get(closest);
-				randomTarget = false;
 			}
 			
 			if(target == null) {
 				target = new Vector2D(random.nextInt(640), random.nextInt(480));
-				randomTarget = true;
 			}
 		}
 		

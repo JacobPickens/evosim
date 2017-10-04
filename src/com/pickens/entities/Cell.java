@@ -1,6 +1,11 @@
 package com.pickens.entities;
 
-import static com.pickens.anatomy.Nucleus.*;
+import static com.pickens.anatomy.Nucleus.LIFESPAN;
+import static com.pickens.anatomy.Nucleus.METABOLIC_RATE;
+import static com.pickens.anatomy.Nucleus.NUMBER_OF_GENES;
+import static com.pickens.anatomy.Nucleus.SIGHT_GENE;
+import static com.pickens.anatomy.Nucleus.SPEED_GENE;
+import static com.pickens.anatomy.Nucleus.STOMACH_SIZE;
 
 import java.util.ArrayList;
 import java.util.Random;
@@ -10,7 +15,9 @@ import org.newdawn.slick.Graphics;
 import org.newdawn.slick.Input;
 import org.newdawn.slick.geom.Rectangle;
 
+import com.pickens.anatomy.Gene;
 import com.pickens.anatomy.Nucleus;
+import com.pickens.anatomy.SpeedGene;
 import com.pickens.math.Vector2D;
 import com.pickens.util.MathUtil;
 
@@ -35,12 +42,12 @@ public class Cell extends Entity {
 		
 		this.entities = entities;
 		
-		float[] tempDNA = new float[NUMBER_OF_GENES];
-		tempDNA[SPEED_GENE] = 2f;
-		tempDNA[SIGHT_GENE] = 0f;
-		tempDNA[STOMACH_SIZE] = 5f;
-		tempDNA[METABOLIC_RATE] = 1 * 60f;
-		tempDNA[LIFESPAN] = 15 * 60f;
+		Gene[] tempDNA = new Gene[NUMBER_OF_GENES];
+		tempDNA[SPEED_GENE] = new SpeedGene(2f);
+		tempDNA[SIGHT_GENE] = new SightGene(1000f);
+		tempDNA[STOMACH_SIZE] = new StomachSizeGene(10f);
+		tempDNA[METABOLIC_RATE] = new MetabolicRateGene(1*60f);
+		tempDNA[LIFESPAN] = new LifespanGene(15*60f);
 		nucleus = new Nucleus(tempDNA);
 		target = new Vector2D(200, 200);
 		
@@ -60,6 +67,7 @@ public class Cell extends Entity {
 
 	boolean breakout = false;
 	int metabolicTicker = 0;
+	int lifespanTicker = 0;
 	@Override
 	public void update(Input input) {
 		lifetime++;
@@ -138,7 +146,9 @@ public class Cell extends Entity {
 			return;
 		}
 		
-		if(lifetime > nucleus.getGeneValue(LIFESPAN)) {
+		lifespanTicker++;
+		if(lifetime > nucleus.getGeneValue(LIFESPAN) && lifespanTicker >= 60) {
+			lifespanTicker = 0;
 			if(random.nextBoolean()) {
 				die();
 				System.out.println("old age");

@@ -9,17 +9,21 @@ public class Nucleus {
 	public static final int METABOLIC_RATE = 3; // Time in seconds * 60 for 1 food point to be digested
 	public static final int LIFESPAN = 4; // seconds * 60 a cell has to live before it can randomly die of old age
 	
-	private float[] dna;
+	private Gene[] dna;
 	
-	public Nucleus(float[] dna) {
+	public Nucleus(Gene[] dna) {
 		this.dna = dna;
 	}
 	
-	public float getGeneValue(int gene) {
+	public Gene getGene(int gene) {
 		return dna[gene];
 	}
 	
-	public float[] getDNA() {
+	public float getGeneValue(int gene) {
+		return dna[gene].getValue();
+	}
+	
+	public Gene[] getDNA() {
 		return dna;
 	}
 	

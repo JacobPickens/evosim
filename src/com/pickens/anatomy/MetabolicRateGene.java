@@ -1,6 +1,5 @@
-package com.pickens.entities;
+package com.pickens.anatomy;
 
-import com.pickens.anatomy.Gene;
 
 public class MetabolicRateGene extends Gene {
 

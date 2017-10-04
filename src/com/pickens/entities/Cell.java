@@ -16,8 +16,12 @@ import org.newdawn.slick.Input;
 import org.newdawn.slick.geom.Rectangle;
 
 import com.pickens.anatomy.Gene;
+import com.pickens.anatomy.LifespanGene;
+import com.pickens.anatomy.MetabolicRateGene;
 import com.pickens.anatomy.Nucleus;
+import com.pickens.anatomy.SightGene;
 import com.pickens.anatomy.SpeedGene;
+import com.pickens.anatomy.StomachSizeGene;
 import com.pickens.math.Vector2D;
 import com.pickens.util.MathUtil;
 
@@ -43,17 +47,31 @@ public class Cell extends Entity {
 		this.entities = entities;
 		
 		Gene[] tempDNA = new Gene[NUMBER_OF_GENES];
-		tempDNA[SPEED_GENE] = new SpeedGene(2f);
-		tempDNA[SIGHT_GENE] = new SightGene(1000f);
+		tempDNA[SPEED_GENE] = new SpeedGene(4f);
+		tempDNA[SIGHT_GENE] = new SightGene(0);
 		tempDNA[STOMACH_SIZE] = new StomachSizeGene(10f);
 		tempDNA[METABOLIC_RATE] = new MetabolicRateGene(1*60f);
-		tempDNA[LIFESPAN] = new LifespanGene(15*60f);
+		tempDNA[LIFESPAN] = new LifespanGene(25*60f);
+		random = new Random();
 		nucleus = new Nucleus(tempDNA);
-		target = new Vector2D(200, 200);
+		target = new Vector2D(random.nextInt(640), random.nextInt(480));
+		
+		stomach = (float) Math.ceil(nucleus.getGeneValue(STOMACH_SIZE)/2);
+	}
+	
+	public Cell(float x, float y, Gene[] dna, Entities entities) {
+		super(x, y);
+		setWidth(32);
+		setHeight(32);
+		setBounds(new Rectangle(getX(), getY(), getWidth(), getHeight()));
+		
+		this.entities = entities;
+
+		random = new Random();
+		nucleus = new Nucleus(dna);
+		target = new Vector2D(random.nextInt(640), random.nextInt(480));
 		
 		stomach = nucleus.getGeneValue(STOMACH_SIZE);
-		
-		random = new Random();
 	}
 
 	@Override
@@ -80,7 +98,7 @@ public class Cell extends Entity {
 		for(Entity e:entityList) {
 			float distanceFrom = (float) Math.sqrt(Math.pow(e.getX()-getX(), 2) + Math.pow(e.getY()-getY(), 2));
 						
-			if(distanceFrom <= nucleus.getGeneValue(SIGHT_GENE)) {
+			if(distanceFrom <= nucleus.getGeneValue(SIGHT_GENE) && e instanceof Food) {
 				targetsInRange.add(new Vector2D(e.getX(), e.getY()));
 			}
 		}
@@ -119,11 +137,9 @@ public class Cell extends Entity {
 		if(metabolicTicker >= nucleus.getGeneValue(METABOLIC_RATE) && stomach > 0) {
 			metabolicTicker = 0;
 			stomach--;
-			System.out.println("minus food");
 		} else if(stomach <= 0 && metabolicTicker >= nucleus.getGeneValue(METABOLIC_RATE)) {
 			metabolicTicker = 0;
 			health -= 10;
-			System.out.println("minus health");
 		}
 		
 		// Collision Testing
@@ -140,6 +156,11 @@ public class Cell extends Entity {
 			}
 		}
 		
+		// Reproduction
+		if(lifetime/nucleus.getGeneValue(LIFESPAN) >= .4f && stomach/nucleus.getGeneValue(STOMACH_SIZE) >= .75f) { // If a cell is 40% through its expected lifespan and its stomach is 75% full
+			reproduce();
+		}
+		
 		// Death
 		if(health <= 0) {
 			die();
@@ -151,7 +172,6 @@ public class Cell extends Entity {
 			lifespanTicker = 0;
 			if(random.nextBoolean()) {
 				die();
-				System.out.println("old age");
 				return;
 			}
 		}
@@ -161,6 +181,12 @@ public class Cell extends Entity {
 		
 		setX(getX() + nucleus.getGeneValue(SPEED_GENE)*direction.x);
 		setY(getY() + nucleus.getGeneValue(SPEED_GENE)*direction.y);
+	}
+	
+	public void reproduce() {
+		
+		entities.add(new Cell(getX()+32, getY(), nucleus.getDNA(), entities));
+		stomach = (float) Math.ceil(nucleus.getGeneValue(STOMACH_SIZE)/2); // Set original cells stomach to half full
 	}
 	
 	public void die() {

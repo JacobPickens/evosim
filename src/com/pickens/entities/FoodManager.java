@@ -7,7 +7,7 @@ public class FoodManager {
 	private Entities entities;
 	private Random random;
 	
-	private static int maxFood = 5;
+	private static int maxFood = 40;
 	private static int numberOfFood = 0;
 	
 	public FoodManager(Entities entities) {
@@ -23,7 +23,7 @@ public class FoodManager {
 	
 	int ticker = 0;
 	public void update() {
-		if(ticker >= 60 * 5 && numberOfFood < maxFood) {
+		if(ticker >= 60 * 2 && numberOfFood < maxFood) {
 			entities.add(new Food(random.nextInt(640), random.nextInt(480)));
 			numberOfFood++;
 			ticker = 0;

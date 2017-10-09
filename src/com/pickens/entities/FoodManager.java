@@ -9,7 +9,7 @@ public class FoodManager {
 	private Entities entities;
 	private Random random;
 	
-	private static int maxFood = 40;
+	private static int maxFood = 50;
 	private static int numberOfFood = 0;
 	
 	public FoodManager(Entities entities) {

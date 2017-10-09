@@ -52,7 +52,7 @@ public class Cell extends Entity {
 		tempDNA[SIGHT_GENE] = new SightGene(0);
 		tempDNA[STOMACH_SIZE] = new StomachSizeGene(10);
 		tempDNA[METABOLIC_RATE] = new MetabolicRateGene(3*60f);
-		tempDNA[LIFESPAN] = new LifespanGene(15*60f);
+		tempDNA[LIFESPAN] = new LifespanGene(20*60f);
 		tempDNA[REPRODUCTION_LIMIT] = new ReproductionLimitGene(2);
 		tempDNA[COLOR] = new ColorGene("#DE18D7");
 		random = new Random();
@@ -203,7 +203,7 @@ public class Cell extends Entity {
 			if(numberOfChildren <= nucleus.getGeneValue(REPRODUCTION_LIMIT)) {
 				System.out.println("mutation");
 				entities.add(new Cell(getX()+32, getY(), mutated.getDNA(), entities));
-				stomach = (float) Math.ceil(nucleus.getGeneValue(STOMACH_SIZE)/2); // Set original cells stomach to half full
+				stomach = (float) Math.ceil(mutated.getGeneValue(STOMACH_SIZE)/2); // Set original cells stomach to half full
 				numberOfChildren++;
 			}
 		} else {

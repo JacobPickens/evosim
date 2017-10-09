@@ -98,7 +98,7 @@ public class Nucleus {
 	  }
 	
 	public Nucleus getSelf() {
-		return new Nucleus(dna);
+		return new Nucleus(dna.clone());
 	}
 	  
 	public Gene[] getDNA() {

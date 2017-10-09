@@ -1,11 +1,6 @@
 package com.pickens.entities;
 
-import static com.pickens.anatomy.Nucleus.LIFESPAN;
-import static com.pickens.anatomy.Nucleus.METABOLIC_RATE;
-import static com.pickens.anatomy.Nucleus.NUMBER_OF_GENES;
-import static com.pickens.anatomy.Nucleus.SIGHT_GENE;
-import static com.pickens.anatomy.Nucleus.SPEED_GENE;
-import static com.pickens.anatomy.Nucleus.STOMACH_SIZE;
+import static com.pickens.anatomy.Nucleus.*;
 
 import java.util.ArrayList;
 import java.util.Random;
@@ -19,9 +14,12 @@ import com.pickens.anatomy.Gene;
 import com.pickens.anatomy.LifespanGene;
 import com.pickens.anatomy.MetabolicRateGene;
 import com.pickens.anatomy.Nucleus;
+import com.pickens.anatomy.ReproductionLimitGene;
 import com.pickens.anatomy.SightGene;
 import com.pickens.anatomy.SpeedGene;
 import com.pickens.anatomy.StomachSizeGene;
+import com.pickens.main.Main;
+import com.pickens.main.Map;
 import com.pickens.math.Vector2D;
 import com.pickens.util.MathUtil;
 
@@ -52,9 +50,10 @@ public class Cell extends Entity {
 		tempDNA[STOMACH_SIZE] = new StomachSizeGene(10f);
 		tempDNA[METABOLIC_RATE] = new MetabolicRateGene(1*60f);
 		tempDNA[LIFESPAN] = new LifespanGene(25*60f);
+		tempDNA[REPRODUCTION_LIMIT] = new ReproductionLimitGene(4);
 		random = new Random();
 		nucleus = new Nucleus(tempDNA);
-		target = new Vector2D(random.nextInt(640), random.nextInt(480));
+		target = new Vector2D(random.nextInt(Map.WIDTH), random.nextInt(Map.HEIGHT));
 		
 		stomach = (float) Math.ceil(nucleus.getGeneValue(STOMACH_SIZE)/2);
 	}
@@ -69,7 +68,7 @@ public class Cell extends Entity {
 
 		random = new Random();
 		nucleus = new Nucleus(dna);
-		target = new Vector2D(random.nextInt(640), random.nextInt(480));
+		target = new Vector2D(random.nextInt(Main.map.WIDTH), random.nextInt(Main.map.HEIGHT));
 		
 		stomach = nucleus.getGeneValue(STOMACH_SIZE);
 	}
@@ -86,6 +85,7 @@ public class Cell extends Entity {
 	boolean breakout = false;
 	int metabolicTicker = 0;
 	int lifespanTicker = 0;
+	int numberOfChildren = 0;
 	@Override
 	public void update(Input input) {
 		lifetime++;
@@ -128,7 +128,7 @@ public class Cell extends Entity {
 			}
 			
 			if(target == null) {
-				target = new Vector2D(random.nextInt(640), random.nextInt(480));
+				target = new Vector2D(random.nextInt(Main.map.WIDTH), random.nextInt(Main.map.HEIGHT));
 			}
 		}
 		
@@ -184,9 +184,11 @@ public class Cell extends Entity {
 	}
 	
 	public void reproduce() {
-		
-		entities.add(new Cell(getX()+32, getY(), nucleus.getDNA(), entities));
-		stomach = (float) Math.ceil(nucleus.getGeneValue(STOMACH_SIZE)/2); // Set original cells stomach to half full
+		if(numberOfChildren <= nucleus.getGeneValue(REPRODUCTION_LIMIT)) {
+			entities.add(new Cell(getX()+32, getY(), nucleus.getDNA(), entities));
+			stomach = (float) Math.ceil(nucleus.getGeneValue(STOMACH_SIZE)/2); // Set original cells stomach to half full
+			numberOfChildren++;
+		}
 	}
 	
 	public void die() {

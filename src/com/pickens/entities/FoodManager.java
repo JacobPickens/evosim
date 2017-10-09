@@ -25,7 +25,7 @@ public class FoodManager {
 	
 	int ticker = 0;
 	public void update() {
-		if(ticker >= 60 * 1 && numberOfFood < maxFood) {
+		if(ticker >= 60 * 3 && numberOfFood < maxFood) {
 			entities.add(new Food(random.nextInt(Map.WIDTH), random.nextInt(Map.HEIGHT)));
 			numberOfFood++;
 			ticker = 0;

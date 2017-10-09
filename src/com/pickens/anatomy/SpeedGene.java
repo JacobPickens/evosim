@@ -9,9 +9,9 @@ public class SpeedGene extends Gene {
 	@Override
 	public void mutate(boolean good) {
 		if(good) {
-			value++;
+			value += 0.2f;
 		} else {
-			value--;
+			value -= 0.1f;
 		}
 	}
 

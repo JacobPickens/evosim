@@ -51,7 +51,7 @@ public class Cell extends Entity {
 		tempDNA[SPEED_GENE] = new SpeedGene(2f);
 		tempDNA[SIGHT_GENE] = new SightGene(0);
 		tempDNA[STOMACH_SIZE] = new StomachSizeGene(10);
-		tempDNA[METABOLIC_RATE] = new MetabolicRateGene(3*60f);
+		tempDNA[METABOLIC_RATE] = new MetabolicRateGene(4*60f);
 		tempDNA[LIFESPAN] = new LifespanGene(20*60f);
 		tempDNA[REPRODUCTION_LIMIT] = new ReproductionLimitGene(2);
 		tempDNA[COLOR] = new ColorGene("#DE18D7");

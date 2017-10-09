@@ -26,6 +26,9 @@ public class Map {
 		food = new FoodManager(entities);
 		
 		entities.add(new Cell(700, 700, entities));
+		entities.add(new Cell(200, 700, entities));
+		entities.add(new Cell(300, 700, entities));
+		entities.add(new Cell(400, 700, entities));
 	}
 	
 	public void render(Graphics g) {

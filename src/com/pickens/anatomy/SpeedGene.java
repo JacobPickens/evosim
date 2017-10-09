@@ -7,8 +7,12 @@ public class SpeedGene extends Gene {
 	}
 
 	@Override
-	public void mutate() {
-
+	public void mutate(boolean good) {
+		if(good) {
+			value++;
+		} else {
+			value--;
+		}
 	}
 
 }

@@ -8,8 +8,12 @@ public class SightGene extends Gene {
 	}
 
 	@Override
-	public void mutate() {
-
+	public void mutate(boolean good) {
+		if(good) {
+			value += 5;
+		} else {
+			value -= 2;
+		}
 	}
 
 }

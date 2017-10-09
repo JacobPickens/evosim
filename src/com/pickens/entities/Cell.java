@@ -10,6 +10,7 @@ import org.newdawn.slick.Graphics;
 import org.newdawn.slick.Input;
 import org.newdawn.slick.geom.Rectangle;
 
+import com.pickens.anatomy.ColorGene;
 import com.pickens.anatomy.Gene;
 import com.pickens.anatomy.LifespanGene;
 import com.pickens.anatomy.MetabolicRateGene;
@@ -25,6 +26,8 @@ import com.pickens.util.MathUtil;
 
 public class Cell extends Entity {
 
+	public static final float MUTATION_RATE = .5f;
+	
 	private Nucleus nucleus;
 	private Entities entities;
 	private Random random;
@@ -45,12 +48,13 @@ public class Cell extends Entity {
 		this.entities = entities;
 		
 		Gene[] tempDNA = new Gene[NUMBER_OF_GENES];
-		tempDNA[SPEED_GENE] = new SpeedGene(4f);
+		tempDNA[SPEED_GENE] = new SpeedGene(2f);
 		tempDNA[SIGHT_GENE] = new SightGene(0);
-		tempDNA[STOMACH_SIZE] = new StomachSizeGene(10f);
-		tempDNA[METABOLIC_RATE] = new MetabolicRateGene(1*60f);
-		tempDNA[LIFESPAN] = new LifespanGene(25*60f);
-		tempDNA[REPRODUCTION_LIMIT] = new ReproductionLimitGene(4);
+		tempDNA[STOMACH_SIZE] = new StomachSizeGene(10);
+		tempDNA[METABOLIC_RATE] = new MetabolicRateGene(3*60f);
+		tempDNA[LIFESPAN] = new LifespanGene(15*60f);
+		tempDNA[REPRODUCTION_LIMIT] = new ReproductionLimitGene(2);
+		tempDNA[COLOR] = new ColorGene("#DE18D7");
 		random = new Random();
 		nucleus = new Nucleus(tempDNA);
 		target = new Vector2D(random.nextInt(Map.WIDTH), random.nextInt(Map.HEIGHT));
@@ -78,7 +82,8 @@ public class Cell extends Entity {
 		g.setColor(Color.red);
 		g.fillRect(getX(), getY()-12, (health/100)*getWidth(), 8);
 		
-		g.setColor(Color.blue);
+		java.awt.Color awtColor = java.awt.Color.decode(nucleus.getGeneStringValue(COLOR));
+		g.setColor(new Color(awtColor.getRed(), awtColor.getGreen(), awtColor.getBlue()));
 		g.fillOval(getX(), getY(), getWidth(), getHeight());
 	}
 
@@ -184,10 +189,29 @@ public class Cell extends Entity {
 	}
 	
 	public void reproduce() {
-		if(numberOfChildren <= nucleus.getGeneValue(REPRODUCTION_LIMIT)) {
-			entities.add(new Cell(getX()+32, getY(), nucleus.getDNA(), entities));
-			stomach = (float) Math.ceil(nucleus.getGeneValue(STOMACH_SIZE)/2); // Set original cells stomach to half full
-			numberOfChildren++;
+		System.out.println("baby");
+		if(MUTATION_RATE >= random.nextFloat()) { // Mutation
+			boolean good = false;
+			if(random.nextFloat() < .7) {
+				System.out.println("good");
+				good = true;
+			}
+			
+			Nucleus mutated = nucleus.getSelf();
+			mutated.getDNA()[random.nextInt(NUMBER_OF_GENES-1)].mutate(good);
+			mutated.randomizeColor();
+			if(numberOfChildren <= nucleus.getGeneValue(REPRODUCTION_LIMIT)) {
+				System.out.println("mutation");
+				entities.add(new Cell(getX()+32, getY(), mutated.getDNA(), entities));
+				stomach = (float) Math.ceil(nucleus.getGeneValue(STOMACH_SIZE)/2); // Set original cells stomach to half full
+				numberOfChildren++;
+			}
+		} else {
+			if(numberOfChildren <= nucleus.getGeneValue(REPRODUCTION_LIMIT)) {
+				entities.add(new Cell(getX()+32, getY(), nucleus.getDNA(), entities));
+				stomach = (float) Math.ceil(nucleus.getGeneValue(STOMACH_SIZE)/2); // Set original cells stomach to half full
+				numberOfChildren++;
+			}
 		}
 	}
 	

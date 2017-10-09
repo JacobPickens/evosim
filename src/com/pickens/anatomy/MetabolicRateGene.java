@@ -8,8 +8,12 @@ public class MetabolicRateGene extends Gene {
 	}
 
 	@Override
-	public void mutate() {
-
+	public void mutate(boolean good) {
+		if(good) {
+			value += 60;
+		} else {
+			value -= 30;
+		}
 	}
 
 }

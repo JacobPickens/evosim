@@ -1,6 +1,14 @@
 package com.pickens.entities;
 
-import static com.pickens.anatomy.Nucleus.*;
+import static com.pickens.anatomy.Nucleus.CARNIVORE;
+import static com.pickens.anatomy.Nucleus.COLOR;
+import static com.pickens.anatomy.Nucleus.LIFESPAN;
+import static com.pickens.anatomy.Nucleus.METABOLIC_RATE;
+import static com.pickens.anatomy.Nucleus.NUMBER_OF_GENES;
+import static com.pickens.anatomy.Nucleus.REPRODUCTION_LIMIT;
+import static com.pickens.anatomy.Nucleus.SIGHT_GENE;
+import static com.pickens.anatomy.Nucleus.SPEED_GENE;
+import static com.pickens.anatomy.Nucleus.STOMACH_SIZE;
 
 import java.util.ArrayList;
 import java.util.Random;
@@ -10,6 +18,7 @@ import org.newdawn.slick.Graphics;
 import org.newdawn.slick.Input;
 import org.newdawn.slick.geom.Rectangle;
 
+import com.pickens.anatomy.CarnivoreGene;
 import com.pickens.anatomy.ColorGene;
 import com.pickens.anatomy.Gene;
 import com.pickens.anatomy.LifespanGene;
@@ -49,11 +58,12 @@ public class Cell extends Entity {
 		
 		Gene[] tempDNA = new Gene[NUMBER_OF_GENES];
 		tempDNA[SPEED_GENE] = new SpeedGene(2f);
-		tempDNA[SIGHT_GENE] = new SightGene(0);
+		tempDNA[SIGHT_GENE] = new SightGene(400);
 		tempDNA[STOMACH_SIZE] = new StomachSizeGene(10);
 		tempDNA[METABOLIC_RATE] = new MetabolicRateGene(4*60f);
 		tempDNA[LIFESPAN] = new LifespanGene(20*60f);
 		tempDNA[REPRODUCTION_LIMIT] = new ReproductionLimitGene(2);
+		tempDNA[CARNIVORE] = new CarnivoreGene(0);
 		tempDNA[COLOR] = new ColorGene("#DE18D7");
 		random = new Random();
 		nucleus = new Nucleus(tempDNA);
@@ -103,8 +113,17 @@ public class Cell extends Entity {
 		for(Entity e:entityList) {
 			float distanceFrom = (float) Math.sqrt(Math.pow(e.getX()-getX(), 2) + Math.pow(e.getY()-getY(), 2));
 						
-			if(distanceFrom <= nucleus.getGeneValue(SIGHT_GENE) && e instanceof Food) {
-				targetsInRange.add(new Vector2D(e.getX(), e.getY()));
+			if(distanceFrom <= nucleus.getGeneValue(SIGHT_GENE) && (e.getX() > 0 && e.getX() < Main.WIDTH) && (e.getY() > 0 && e.getY() < Main.HEIGHT)) {
+				if(nucleus.getGeneValue(CARNIVORE) >= 5) { // If cell is carnivorous
+					if(e instanceof Cell) {
+						if(((Cell)e).getNucleus().getGeneValue(CARNIVORE) < nucleus.getGeneValue(CARNIVORE))
+							targetsInRange.add(new Vector2D(e.getX(), e.getY()));
+					}
+				} else { // If cell is not carnivorous
+					if(e instanceof Food) {
+						targetsInRange.add(new Vector2D(e.getX(), e.getY()));
+					}
+				}
 			}
 		}
 		
@@ -153,10 +172,18 @@ public class Cell extends Entity {
 		list.remove(this);
 		for(Entity e:list) {
 			if(this.getBounds().intersects(e.getBounds())) {
-				if(e instanceof Food && stomach < nucleus.getGeneValue(STOMACH_SIZE)) {
+				if(e instanceof Food && stomach < nucleus.getGeneValue(STOMACH_SIZE) && nucleus.getGeneValue(CARNIVORE) < 5) {
 					entities.remove(e);
 					stomach++;
 					FoodManager.foodEaten();
+				} else if(e instanceof Cell && stomach < nucleus.getGeneValue(STOMACH_SIZE) && nucleus.getGeneValue(CARNIVORE) >= 5) {
+					if(((Cell) e).getStomach() + stomach > nucleus.getGeneValue(STOMACH_SIZE)) {
+						stomach = nucleus.getGeneValue(STOMACH_SIZE);
+						entities.add(new Food(e.getX(), e.getY()));
+					} else {
+						stomach += ((Cell) e).getStomach();
+					}
+					entities.remove(e);
 				}
 			}
 		}
@@ -192,7 +219,7 @@ public class Cell extends Entity {
 		System.out.println("baby");
 		if(MUTATION_RATE >= random.nextFloat()) { // Mutation
 			boolean good = false;
-			if(random.nextFloat() < .7) {
+			if(random.nextFloat() < .7) { // 70% chance the mutation will increase the current genes value
 				System.out.println("good");
 				good = true;
 			}
@@ -213,6 +240,14 @@ public class Cell extends Entity {
 				numberOfChildren++;
 			}
 		}
+	}
+	
+	public Nucleus getNucleus() {
+		return nucleus;
+	}
+	
+	public float getStomach() {
+		return stomach;
 	}
 	
 	public void die() {

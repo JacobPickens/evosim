@@ -5,14 +5,18 @@ import java.util.Random;
 
 public class Nucleus {
 
-	public static final int NUMBER_OF_GENES = 7;
+	// NOTE: Every new gene added should be added before the COLOR index. Color is subtracted from the number of genes
+	// during the mutation process. Therefore to keep indices correct, always have the COLOR index last on the list.
+	
+	public static final int NUMBER_OF_GENES = 8;
 	public static final int SPEED_GENE = 0; // Movement speed
 	public static final int SIGHT_GENE = 1; // Radius of view
 	public static final int STOMACH_SIZE = 2; // Amount of food a cell can hold at any given time
 	public static final int METABOLIC_RATE = 3; // Time in seconds * 60 for 1 food point to be digested
 	public static final int LIFESPAN = 4; // seconds * 60 a cell has to live before it can randomly die of old age
 	public static final int REPRODUCTION_LIMIT = 5; // Limits the number of times a cell can reproduce
-	public static final int COLOR = 6; // Color of the cell
+	public static final int CARNIVORE = 6; // Whether or not the cell is carnivorous
+	public static final int COLOR = 7; // Color of the cell
 	
 	private Gene[] dna;
 	private Random random;

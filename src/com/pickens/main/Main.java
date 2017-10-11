@@ -8,6 +8,9 @@ import org.newdawn.slick.SlickException;
 
 public class Main extends BasicGame {
 	
+	public static final int WIDTH = 1000;
+	public static final int HEIGHT = 800;
+	
 	public static Map map;
 	
 	public Main(String title) {
@@ -30,7 +33,7 @@ public class Main extends BasicGame {
 		AppGameContainer appgc;
 		try {
 			appgc = new AppGameContainer(new Main("EvoSim"));
-			appgc.setDisplayMode(1000, 800, false);
+			appgc.setDisplayMode(WIDTH, HEIGHT, false);
 			appgc.setVSync(true);
 			appgc.start();
 		} catch(SlickException e) {
